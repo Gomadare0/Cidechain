@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="O8Zjon" name="CIDECHAIN" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              companyName="Gomadare" cppLanguageStandard="17" pluginVST3Category="Fx,Stereo"
+              pluginCharacteristicsValue="pluginWantsMidiIn">
+  <MAINGROUP id="TtdwGJ" name="CIDECHAIN">
+    <GROUP id="{994A0A4E-C0FE-38A5-A554-DB15D2FF3162}" name="Resources">
+      <FILE id="A3APQR" name="bgimg.png" compile="0" resource="1" file="Resource/bgimg.png"/>
+    </GROUP>
+    <GROUP id="{B7435768-7054-C129-F373-F6A4CEF904D2}" name="Source">
+      <FILE id="z2awsQ" name="Envelope_Manager.cpp" compile="1" resource="0"
+            file="Source/Envelope_Manager.cpp"/>
+      <FILE id="ePzlPQ" name="Envelope_PreviewComponent.cpp" compile="1"
+            resource="0" file="Source/Envelope_PreviewComponent.cpp"/>
+      <FILE id="bz16KA" name="Envelope_PreviewComponent.h" compile="0" resource="0"
+            file="Source/Envelope_PreviewComponent.h"/>
+      <FILE id="fhbNyH" name="Envelope_VoiceController.h" compile="0" resource="0"
+            file="Source/Envelope_VoiceController.h"/>
+      <FILE id="NZ9U8O" name="Envelope_PointEdit.cpp" compile="1" resource="0"
+            file="Source/Envelope_PointEdit.cpp"/>
+      <FILE id="QZVezn" name="Envelope_PointEdit.h" compile="0" resource="0"
+            file="Source/Envelope_PointEdit.h"/>
+      <FILE id="LU0A1M" name="ParamAttachment.h" compile="0" resource="0"
+            file="Source/ParamAttachment.h"/>
+      <FILE id="cgH1Gw" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="Im6gsx" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="WhYuzC" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="dedHFY" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="QBPcLw" name="ScrollbarWithHandle.h" compile="0" resource="0"
+            file="Source/ScrollbarWithHandle.h"/>
+      <FILE id="dF7rmk" name="Proc_Sidechain.h" compile="0" resource="0"
+            file="Source/Proc_Sidechain.h"/>
+      <FILE id="R8Ji8Q" name="Envelope_PointEditMultiband.h" compile="0"
+            resource="0" file="Source/Envelope_PointEditMultiband.h"/>
+      <FILE id="DioVTL" name="DSP_Filter.h" compile="0" resource="0" file="Source/DSP_Filter.h"/>
+      <FILE id="KC2EpC" name="ToDo.txt" compile="0" resource="1" file="Source/ToDo.txt"/>
+      <FILE id="CtiuUO" name="ValueNormalization.h" compile="0" resource="0"
+            file="Source/ValueNormalization.h"/>
+      <FILE id="OTpwRx" name="customlookandfeel.cpp" compile="1" resource="0"
+            file="Source/customlookandfeel.cpp"/>
+      <FILE id="janz7K" name="Component_BandSplitter.h" compile="0" resource="0"
+            file="Source/Component_BandSplitter.h"/>
+      <FILE id="YCUw3L" name="customlookandfeel.h" compile="0" resource="0"
+            file="Source/customlookandfeel.h"/>
+      <FILE id="zUfRp5" name="Envelope_Data.h" compile="0" resource="0" file="Source/Envelope_Data.h"/>
+      <FILE id="phJ0rI" name="Component_NumericSpinbox.cpp" compile="1" resource="0"
+            file="Source/Component_NumericSpinbox.cpp"/>
+      <FILE id="vAJQlp" name="Component_NumericSpinbox.h" compile="0" resource="0"
+            file="Source/Component_NumericSpinbox.h"/>
+      <FILE id="x1c5J6" name="Envelope_Editor.cpp" compile="1" resource="0"
+            file="Source/Envelope_Editor.cpp"/>
+      <FILE id="cjbD9I" name="Envelope_Editor.h" compile="0" resource="0"
+            file="Source/Envelope_Editor.h"/>
+      <FILE id="jIMoCN" name="Envelope_Fwd.h" compile="0" resource="0" file="Source/Envelope_Fwd.h"/>
+      <FILE id="soYpSR" name="Envelope_Manager.h" compile="0" resource="0"
+            file="Source/Envelope_Manager.h"/>
+      <FILE id="GenPLJ" name="Envelope_Serialization.h" compile="0" resource="0"
+            file="Source/Envelope_Serialization.h"/>
+      <FILE id="pw51HX" name="Component_BandSplitter.cpp" compile="1" resource="0"
+            file="Source/Component_BandSplitter.cpp"/>
+      <FILE id="ddNgVK" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
+      <FILE id="lVUJLG" name="Envelope_PointEditMultiband.cpp" compile="1"
+            resource="0" file="Source/Envelope_PointEditMultiband.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <EXPORTFORMATS>
+    <VS2019 targetFolder="Builds/VisualStudio2019">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="CIDECHAIN"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="CIDECHAIN"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2019>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <LIVE_SETTINGS>
+    <WINDOWS/>
+  </LIVE_SETTINGS>
+</JUCERPROJECT>
