@@ -544,6 +544,15 @@ void MyplugAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                                 canProcess = false;
                             }
                         }
+                        else if (envVoice.getXPos() <= envgen_->getFirstPoint().x)
+                        {
+                            // when XPos exceeds envelope
+                            if (!holdEnabled)
+                            {
+                                // not holded
+                                canProcess = false;
+                            }
+                        }
                     }
                 }
 
