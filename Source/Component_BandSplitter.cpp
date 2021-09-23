@@ -39,7 +39,7 @@ void myplug::BandSplitView::paint(juce::Graphics& g)
     juce::PathStrokeType stroke(1.5, juce::PathStrokeType::JointStyle::curved);
     topline.startNewSubPath(-1.0, getHeight());
     int beginningIndex = (float)fftSize / sampleRate * minFreq_;
-    int endingIndex = (float)fftSize / sampleRate * maxFreq_;
+    int endingIndex = (float)fftSize / sampleRate * std::clamp<float>(sampleRate / 2.0, 0, maxFreq_);
     if (beginningIndex == 0) ++beginningIndex; // ignore lowest band
 
     for (int i = beginningIndex; i < endingIndex; ++i)

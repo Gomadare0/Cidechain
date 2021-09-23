@@ -125,6 +125,17 @@ namespace myplug
 		}
 	};
 
+	class Listener_PlugEditGUIScaling : public myplug::NumericSpinBox::Listener
+	{
+		void* proc_;
+	public:
+		Listener_PlugEditGUIScaling(void* PluginEditorPtr) : proc_(PluginEditorPtr) {}
+		
+		void onNumberChanged(NumericSpinBox*) override {}
+		void startGesture(NumericSpinBox*) override {}		
+		void endGesture(NumericSpinBox*) override;
+	};
+
 	class GenericListener : public juce::AudioProcessorParameter::Listener
 	{
 		std::function<void(float)> listenerFunc_ = nullptr;

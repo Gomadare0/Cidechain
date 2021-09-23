@@ -12,7 +12,7 @@
 #include "../JuceLibraryCode/BinaryData.h"
 
 //==============================================================================
-VocoderAudioProcessorEditor::VocoderAudioProcessorEditor(VocoderAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
+MyplugAudioProcessorEditor::MyplugAudioProcessorEditor(MyplugAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor(&p), audioProcessor(p), apvtsRef(vts), bandsplitview_(p.fftData, p.nextFFTBlockReady, p.samplerate)
     , param_mix_(*vts.getParameter("Mix"), slider_mix_)
     , param_midimode_(*vts.getParameter("Midi_Trg_Mode"), combo_midimode_)
@@ -29,10 +29,24 @@ VocoderAudioProcessorEditor::VocoderAudioProcessorEditor(VocoderAudioProcessor& 
     , param_declick_(*vts.getParameter("Declick"), button_declick_)
     , param_declicklen_(*vts.getParameter("DeclickLength"), spin_declicklen_)
     , paramListener_envtrg_(envedit_.pointEdit_)
+    , param_guiscaling_(this)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (1280, 720);
+    setSize(1280, 720);
+
+    // ----------- Read GUI Settings -----------
+    {
+        juce::ApplicationProperties appprop;
+        juce::PropertiesFile::Options options;
+        options.applicationName = "CIDECHAIN";   options.filenameSuffix = ".editorSettings";
+        appprop.setStorageParameters(options);
+        juce::PropertiesFile* setting = appprop.getUserSettings();
+
+        setMyplugGUIScaling(setting->getDoubleValue("GUIScaling", 1.0));
+
+        appprop.closeFiles();
+    }
 
     envedit_.setBounds(65, 190, 940, 500);
     envedit_.setEnvelopeManager(&p.envmng_);
@@ -141,6 +155,17 @@ VocoderAudioProcessorEditor::VocoderAudioProcessorEditor(VocoderAudioProcessor& 
     spin_rate_offset_.setIncrementAmount(1);
     spin_rate_offset_.setDicimalDigit(0);
 
+    spin_guiScaling_.setColour(myplug::NumericSpinBox::Colours::Background, juce::Colour(12, 96, 173));
+    spin_guiScaling_.setColour(myplug::NumericSpinBox::Colours::BackgroundMouseover, juce::Colour(69, 160, 243));
+    spin_guiScaling_.setColour(myplug::NumericSpinBox::Colours::Border, juce::Colour(183, 218, 250));
+    spin_guiScaling_.setMinimum(minScale_ * 100);
+    spin_guiScaling_.setMaximum(maxScale_ * 100);
+    spin_guiScaling_.setSuffix("%");
+    spin_guiScaling_.setIncrementAmount(10);
+    spin_guiScaling_.setDicimalDigit(0);
+    spin_guiScaling_.setNumber(guiScaling_ * 100);
+    spin_guiScaling_.addListener(&param_guiscaling_);
+
     addAndMakeVisible(slider_mix_);
     addAndMakeVisible(combo_midimode_);
     addAndMakeVisible(button_lfo_);
@@ -154,11 +179,12 @@ VocoderAudioProcessorEditor::VocoderAudioProcessorEditor(VocoderAudioProcessor& 
     addAndMakeVisible(button_hold_);
     addAndMakeVisible(button_declick_);
     addAndMakeVisible(spin_declicklen_);
+    addAndMakeVisible(spin_guiScaling_);
 
     setLookAndFeel(&customlookandfeel);
 }
 
-VocoderAudioProcessorEditor::~VocoderAudioProcessorEditor()
+MyplugAudioProcessorEditor::~MyplugAudioProcessorEditor()
 {
     setLookAndFeel(nullptr);
     for (int i = 0; i < previewFrames; ++i)
@@ -167,10 +193,23 @@ VocoderAudioProcessorEditor::~VocoderAudioProcessorEditor()
         envedit_.pointEdit_.removeListener(&preview_[i]);
     }
     combo_envmode_.removeListener(&paramListener_envtrg_);
+
+    // ----------- Write GUI Settings -----------
+    juce::ApplicationProperties appprop;
+    juce::PropertiesFile::Options options;
+    options.applicationName = "CIDECHAIN";    options.filenameSuffix = ".editorSettings";
+    appprop.setStorageParameters(options);
+
+    juce::PropertiesFile* setting = appprop.getUserSettings();
+
+    setting->setValue("GUIScaling", getGUIScaling());
+
+    setting->save();
+    appprop.closeFiles();
 }
 
 //==============================================================================
-void VocoderAudioProcessorEditor::paint (juce::Graphics& g)
+void MyplugAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
@@ -179,7 +218,7 @@ void VocoderAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawImageAt(backgroundImg, 0, 0);
 }
 
-void VocoderAudioProcessorEditor::resized()
+void MyplugAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
@@ -197,9 +236,10 @@ void VocoderAudioProcessorEditor::resized()
     button_hold_.setBounds(1124, 197, 116, 25);
     button_declick_.setBounds(1124, 227, 116, 25);
     spin_declicklen_.setBounds(1124, 257, 116, 25);
+    spin_guiScaling_.setBounds(278, 9, 64, 23);
 }
 
-void VocoderAudioProcessorEditor::clicked(myplug::envelope::EnvelopePreviewComponent* c)
+void MyplugAudioProcessorEditor::clicked(myplug::envelope::EnvelopePreviewComponent* c)
 {
     for (int i = 0; i < 10; ++i)
     {

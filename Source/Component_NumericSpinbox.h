@@ -7,11 +7,21 @@ namespace myplug
 	class NumericSpinBox : public juce::Component, public juce::TextEditor::Listener
 	{	
 	public:
+		enum class Colours
+		{
+			Background,
+			BackgroundMouseover,
+			Border,
+			Font
+		};
+
 		class Listener
 		{
 		public:
 			virtual ~Listener() = default;
 			virtual void onNumberChanged(NumericSpinBox*) = 0;
+			virtual void startGesture(NumericSpinBox*){}
+			virtual void endGesture(NumericSpinBox*){}
 		};
 
 	private:
@@ -49,9 +59,13 @@ namespace myplug
 
 		juce::TextEditor textinput_;
 
+		juce::Colour colour_background_ = juce::Colour(0.0f, 0.0f, 0.2f, 1.0f);;
+		juce::Colour colour_background_mouseover_ = juce::Colour(0.0f, 0.0f, 0.3f, 1.0f);
+		juce::Colour colour_border_ = juce::Colours::mediumpurple;
+		juce::Colour colour_font_ = juce::Colours::white;
+
 		void updateMouseCur(const juce::MouseEvent& g);
 		void updateNumFromTextinput();
-		void callListeners();
 
 	public:
 		NumericSpinBox();
@@ -86,6 +100,7 @@ namespace myplug
 		void setSuffix(const juce::String& suffix) { suffix_ = suffix; }
 		void setIsInteger(bool shouldbeint) { isInteger_ = shouldbeint; decimalDigit_ = 0; }
 		void setMouseSensitivity(double sensitivity = 1.0) { mouseSensitivity_ = sensitivity; }
+		void setColour(NumericSpinBox::Colours colourType, const juce::Colour& newColour);
 
 		void notifyValueChanged() { repaint(); }
 
@@ -107,6 +122,7 @@ namespace myplug
 			listeners_.erase(std::remove(listeners_.begin(), listeners_.end(), listener), listeners_.end());
 		}
 
+		void mouseDown(const juce::MouseEvent& e) override;
 		void mouseGlobDown(const juce::MouseEvent& e);
 		void mouseDrag(const juce::MouseEvent& e) override;
 		void mouseMove(const juce::MouseEvent& e) override;

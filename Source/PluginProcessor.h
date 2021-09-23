@@ -20,12 +20,12 @@
 //==============================================================================
 /**
 */
-class VocoderAudioProcessor  : public juce::AudioProcessor
+class MyplugAudioProcessor  : public juce::AudioProcessor
 {
 public:
     //==============================================================================
-    VocoderAudioProcessor();
-    ~VocoderAudioProcessor() override;
+    MyplugAudioProcessor();
+    ~MyplugAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -121,5 +121,5 @@ private:
     myplug::DSP::Butterworth_2nd midhigh_hp_[2][2];
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VocoderAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyplugAudioProcessor)
 };

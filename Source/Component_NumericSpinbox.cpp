@@ -31,19 +31,16 @@ void myplug::NumericSpinBox::updateNumFromTextinput()
 				setNumber(textinput_.getText().getDoubleValue());
 			}
 		}
-		callListeners();
+		for (const auto& i : listeners_)
+		{
+			i->onNumberChanged(this);
+			i->startGesture(this);
+			i->endGesture(this);
+		}
 	}
 
 	textinput_.setVisible(false);
 	textinput_.setText("");
-}
-
-void myplug::NumericSpinBox::callListeners()
-{
-	for (const auto& i : listeners_)
-	{
-		i->onNumberChanged(this);
-	}
 }
 
 myplug::NumericSpinBox::NumericSpinBox()
@@ -63,16 +60,16 @@ myplug::NumericSpinBox::~NumericSpinBox()
 
 void myplug::NumericSpinBox::paint(juce::Graphics& g)
 {
-	g.setColour(juce::Colour(0.0f, 0.0f, isMouseOver() ? 0.3f : 0.2f, 1.0f));
+	g.setColour(isMouseOver() ? colour_background_mouseover_ : colour_background_);
 	g.fillAll();
 
-	g.setColour(juce::Colours::mediumpurple);
+	g.setColour(colour_border_);
 	g.drawRect(getLocalBounds(), 1.0f);
 
 	float border = getLocalBounds().getHeight() * 0.1f;
 	float textHeight = getLocalBounds().getHeight() - border * 2;
 	float textMaxWidth = getLocalBounds().getWidth() - border * 2;
-	g.setColour(juce::Colours::white);
+	g.setColour(colour_font_);
 	auto font = g.getCurrentFont();
 	font.setHeight(textHeight);
 	g.setFont(font);
@@ -95,6 +92,27 @@ void myplug::NumericSpinBox::resized()
 	textinput_.setBounds(getLocalBounds());
 }
 
+void myplug::NumericSpinBox::setColour(NumericSpinBox::Colours colourType, const juce::Colour& newColour)
+{
+	switch (colourType)
+	{
+	case NumericSpinBox::Colours::Background: colour_background_ = newColour; break;
+	case NumericSpinBox::Colours::BackgroundMouseover: colour_background_mouseover_ = newColour; break;
+	case NumericSpinBox::Colours::Border: colour_border_ = newColour; break;
+	case NumericSpinBox::Colours::Font: colour_font_ = newColour; break;
+	default: break;
+	}
+	repaint();
+}
+
+void myplug::NumericSpinBox::mouseDown(const juce::MouseEvent& e)
+{
+	for (const auto& i : listeners_)
+	{
+		i->startGesture(this);
+	}
+}
+
 void myplug::NumericSpinBox::mouseGlobDown(const juce::MouseEvent& e)
 {
 	if (!getScreenBounds().contains(e.getScreenPosition()) && textinput_.isVisible())
@@ -112,7 +130,10 @@ void myplug::NumericSpinBox::mouseDrag(const juce::MouseEvent& e)
 	{
 		num_ = std::clamp<double>(num_ + incrementAmount_ * dyFloor, min_, max_);
 		dy_ -= dyFloor;
-		callListeners();
+		for (const auto& i : listeners_)
+		{
+			i->onNumberChanged(this);
+		}
 	}
 
 	repaint();
@@ -130,6 +151,10 @@ void myplug::NumericSpinBox::mouseExit(const juce::MouseEvent& e)
 {
 	repaint();
 	updateMouseCur(e);
+	for (const auto& i : listeners_)
+	{
+		i->endGesture(this);
+	}
 }
 
 void myplug::NumericSpinBox::mouseUp(const juce::MouseEvent& e)

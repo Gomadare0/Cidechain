@@ -13,7 +13,7 @@
 
 static const float denomBeatTable[] = { 4, 2, 3, 4.0 / 3.0, 1, 3.0 / 2.0, 2.0 / 3.0, 0.5, 3.0 / 4.0, 1.0 / 3.0, 0.25, 3.0 / 8.0, 1.0 / 6.0, 0.125 };
 
-void VocoderAudioProcessor::pushNextSampleIntoFifo(float sample)
+void MyplugAudioProcessor::pushNextSampleIntoFifo(float sample)
 {
     fifo[fifoIndex++] = sample;
 
@@ -35,20 +35,19 @@ void VocoderAudioProcessor::pushNextSampleIntoFifo(float sample)
     }
 }
 
-void VocoderAudioProcessor::updateLFORate(double bpm)
+void MyplugAudioProcessor::updateLFORate(double bpm)
 {
     auto num = param_lfonumerator_->getValue();
     auto denom = param_lfodenominator_->getValue();
     juce::AudioPlayHead::CurrentPositionInfo posinfo;
 
     float beatTime = (60.0 / bpm) * myplug::denormalizeValue<float>(num, 1.0, 8.0) * denomBeatTable[static_cast<size_t>(myplug::denormalizeValue<float>(denom, 0.0, 13.0))];
-    //float blockTime = getBlockSize() / getSampleRate();
     float multiplier = param_lfomultiplier_->convertFrom0to1(param_lfomultiplier_->getValue());
 
     envVoice.setDelta(1.0 / beatTime * multiplier / getSampleRate());
 }
 
-void VocoderAudioProcessor::recalcAndUpdateXPos(juce::AudioPlayHead& playhead)
+void MyplugAudioProcessor::recalcAndUpdateXPos(juce::AudioPlayHead& playhead)
 {
     auto num = param_lfonumerator_->getValue();
     auto denom = param_lfodenominator_->getValue();
@@ -62,7 +61,7 @@ void VocoderAudioProcessor::recalcAndUpdateXPos(juce::AudioPlayHead& playhead)
     envVoice.setXPos(std::fmod(posInBar * multiplier + param_lfooffset_->getValue(), 1.0));
 }
 
-juce::AudioProcessorValueTreeState::ParameterLayout VocoderAudioProcessor::createParamLayout()
+juce::AudioProcessorValueTreeState::ParameterLayout MyplugAudioProcessor::createParamLayout()
 {
     auto layout = juce::AudioProcessorValueTreeState::ParameterLayout();
 
@@ -88,7 +87,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout VocoderAudioProcessor::creat
 }
 
 //==============================================================================
-VocoderAudioProcessor::VocoderAudioProcessor()
+MyplugAudioProcessor::MyplugAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
 #if ! JucePlugin_IsMidiEffect
@@ -174,6 +173,7 @@ VocoderAudioProcessor::VocoderAudioProcessor()
     listener_lowmidFreq_.setListener([&](float newValue)
         {
             float freq = param_lowmidFreq_->convertFrom0to1(newValue);
+            freq = std::clamp<float>(freq, 0.0, samplerate / 2.0 - 10.0);
             for (int channel = 0; channel < 2; ++channel)
             {
                 for (int order = 0; order < 2; ++order)
@@ -186,6 +186,7 @@ VocoderAudioProcessor::VocoderAudioProcessor()
     listener_midhighFreq_.setListener([&](float newValue)
         {
             float freq = param_lowmidFreq_->convertFrom0to1(newValue);
+            freq = std::clamp<float>(freq, 0.0, samplerate / 2.0 - 10.0);
             for (int channel = 0; channel < 2; ++channel)
             {
                 for (int order = 0; order < 2; ++order)
@@ -209,7 +210,7 @@ VocoderAudioProcessor::VocoderAudioProcessor()
     declickCache_.fill(0.0);
 }
 
-VocoderAudioProcessor::~VocoderAudioProcessor()
+MyplugAudioProcessor::~MyplugAudioProcessor()
 {
     param_banks_->removeListener(&listener_banks_);
     param_lowmidFreq_->removeListener(&listener_lowmidFreq_);
@@ -217,12 +218,12 @@ VocoderAudioProcessor::~VocoderAudioProcessor()
 }
 
 //==============================================================================
-const juce::String VocoderAudioProcessor::getName() const
+const juce::String MyplugAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool VocoderAudioProcessor::acceptsMidi() const
+bool MyplugAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -231,7 +232,7 @@ bool VocoderAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool VocoderAudioProcessor::producesMidi() const
+bool MyplugAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -240,7 +241,7 @@ bool VocoderAudioProcessor::producesMidi() const
    #endif
 }
 
-bool VocoderAudioProcessor::isMidiEffect() const
+bool MyplugAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -249,51 +250,57 @@ bool VocoderAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double VocoderAudioProcessor::getTailLengthSeconds() const
+double MyplugAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int VocoderAudioProcessor::getNumPrograms()
+int MyplugAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int VocoderAudioProcessor::getCurrentProgram()
+int MyplugAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void VocoderAudioProcessor::setCurrentProgram (int index)
+void MyplugAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const juce::String VocoderAudioProcessor::getProgramName (int index)
+const juce::String MyplugAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void VocoderAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void MyplugAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void VocoderAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void MyplugAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     updateLFORate();
-    samplerate = sampleRate;
+    if (samplerate != sampleRate)
+    {
+        // Update Coeff
+        samplerate = sampleRate;
+        param_lowmidFreq_->sendValueChangedMessageToListeners(param_lowmidFreq_->getValue());
+        param_midhighFreq_->sendValueChangedMessageToListeners(param_midhighFreq_->getValue());
+    }
 }
-void VocoderAudioProcessor::releaseResources()
+void MyplugAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool VocoderAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool MyplugAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
@@ -318,7 +325,7 @@ bool VocoderAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) 
 }
 #endif
 
-void VocoderAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void MyplugAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     auto playhead = getPlayHead();
     if (playhead)
@@ -556,9 +563,6 @@ void VocoderAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
                         float midBand = midhigh_lp_[0][channel].processSample(midhighBand); midBand = midhigh_lp_[1][channel].processSample(midBand);
                         float highBand = midhigh_hp_[0][channel].processSample(midhighBand); highBand = midhigh_hp_[1][channel].processSample(highBand);
 
-                        //lowBand *= envmng_.getEnvGeneratorsPtr()[1]->getCachedInterpolatitonValue(xPos);
-                        //midBand *= envmng_.getEnvGeneratorsPtr()[2]->getCachedInterpolatitonValue(xPos);
-                        //highBand *= envmng_.getEnvGeneratorsPtr()[3]->getCachedInterpolatitonValue(xPos);
                         if (declick)
                         {
                             declickCacheMB_[0][declickCacheMBIndex_] = (envmng_.getEnvGeneratorsPtr()[1]->getCachedInterpolatitonValue(xPos));
@@ -567,7 +571,6 @@ void VocoderAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
                             for (int b = 0; b < 3; ++b)
                             {
                                 float avg = 0.0;
-                                //avg = std::accumulate(declickCacheMB_[b].begin(), declickCacheMB_[b].begin() + declickLen, 0.0);
                                 for (int k = 0; k < declickLen; ++k)
                                 {
                                     avg += declickCacheMB_[b][k];
@@ -599,7 +602,6 @@ void VocoderAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
                         {
                             declickCache_[declickCacheIndex_] = yvalue;
                             float avg = 0.0;
-                            //avg = std::accumulate(declickCache_.begin(), declickCache_.begin() + declickLen, 0.0);
                             for (int k = 0; k < declickLen; ++k)
                             {
                                 avg += declickCache_[k];
@@ -645,18 +647,18 @@ void VocoderAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 }
 
 //==============================================================================
-bool VocoderAudioProcessor::hasEditor() const
+bool MyplugAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* VocoderAudioProcessor::createEditor()
+juce::AudioProcessorEditor* MyplugAudioProcessor::createEditor()
 {
-    return new VocoderAudioProcessorEditor (*this, apvts);
+    return new MyplugAudioProcessorEditor (*this, apvts);
 }
 
 //==============================================================================
-void VocoderAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void MyplugAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     using namespace myplug::envelope;
     juce::ValueTree tree("Parameters");
@@ -676,7 +678,7 @@ void VocoderAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     //primitiveParam->writeTo(juce::File::getCurrentWorkingDirectory().getChildFile("params.xml"));
 }
 
-void VocoderAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void MyplugAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -705,5 +707,5 @@ void VocoderAudioProcessor::setStateInformation (const void* data, int sizeInByt
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new VocoderAudioProcessor();
+    return new MyplugAudioProcessor();
 }

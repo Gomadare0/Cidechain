@@ -23,17 +23,25 @@ constexpr size_t previewFrames = 10;
 //==============================================================================
 /**
 */
-class VocoderAudioProcessorEditor 
+class MyplugAudioProcessorEditor 
     : public juce::AudioProcessorEditor
     , public myplug::envelope::EnvelopePreviewComponent::Listener
 {
 public:
-    VocoderAudioProcessorEditor (VocoderAudioProcessor&, juce::AudioProcessorValueTreeState&);
-    ~VocoderAudioProcessorEditor() override;
+    MyplugAudioProcessorEditor (MyplugAudioProcessor&, juce::AudioProcessorValueTreeState&);
+    ~MyplugAudioProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+
+    void setMyplugGUIScaling(float newScale)
+    {
+        guiScaling_ = std::clamp<float>(newScale, minScale_, maxScale_);
+        juce::Desktop::getInstance().setGlobalScaleFactor(guiScaling_);
+        repaint();
+    }
+    float getGUIScaling() { return guiScaling_; }
 
 protected:
     void clicked(myplug::envelope::EnvelopePreviewComponent*) override;
@@ -41,7 +49,7 @@ protected:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    VocoderAudioProcessor& audioProcessor;
+    MyplugAudioProcessor& audioProcessor;
     juce::AudioProcessorValueTreeState& apvtsRef;
 
     myplug::CustomLookAndFeel customlookandfeel;
@@ -62,6 +70,12 @@ private:
     juce::ToggleButton button_declick_;
     myplug::NumericSpinBox spin_declicklen_;
 
+    // GUI Scaling
+    float maxScale_ = 4.0;
+    float minScale_ = 0.3;
+    float guiScaling_ = 1.0;
+    myplug::NumericSpinBox spin_guiScaling_;
+
     // Param Listener
     juce::SliderParameterAttachment param_mix_;
     juce::ComboBoxParameterAttachment param_midimode_;
@@ -79,6 +93,7 @@ private:
     myplug::NumericSpinboxParameterAttachment param_declicklen_;
 
     myplug::Listener_EnvTrg paramListener_envtrg_;
+    myplug::Listener_PlugEditGUIScaling param_guiscaling_;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VocoderAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyplugAudioProcessorEditor)
 };

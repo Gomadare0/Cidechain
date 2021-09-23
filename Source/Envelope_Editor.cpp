@@ -97,7 +97,7 @@ void myplug::envelope::EnvelopeEditor::updateScrollBarRange()
 	}
 }
 
-void myplug::envelope::EnvelopeEditor::scrollBarMoved(juce::ScrollBar* scrollBarThatHasMoved, double newRangeStart)
+void myplug::envelope::EnvelopeEditor::scrollBarMoved(juce::ScrollBar*, double newRangeStart)
 {
 	pointEdit_.setOffsetX(newRangeStart);
 }

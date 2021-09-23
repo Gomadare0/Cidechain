@@ -30,14 +30,9 @@
       <FILE id="WhYuzC" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="dedHFY" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <FILE id="QBPcLw" name="ScrollbarWithHandle.h" compile="0" resource="0"
-            file="Source/ScrollbarWithHandle.h"/>
-      <FILE id="dF7rmk" name="Proc_Sidechain.h" compile="0" resource="0"
-            file="Source/Proc_Sidechain.h"/>
       <FILE id="R8Ji8Q" name="Envelope_PointEditMultiband.h" compile="0"
             resource="0" file="Source/Envelope_PointEditMultiband.h"/>
       <FILE id="DioVTL" name="DSP_Filter.h" compile="0" resource="0" file="Source/DSP_Filter.h"/>
-      <FILE id="KC2EpC" name="ToDo.txt" compile="0" resource="1" file="Source/ToDo.txt"/>
       <FILE id="CtiuUO" name="ValueNormalization.h" compile="0" resource="0"
             file="Source/ValueNormalization.h"/>
       <FILE id="OTpwRx" name="customlookandfeel.cpp" compile="1" resource="0"
