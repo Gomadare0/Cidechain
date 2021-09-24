@@ -44,7 +44,7 @@ void MyplugAudioProcessor::updateLFORate(double bpm)
     float beatTime = (60.0 / bpm) * myplug::denormalizeValue<float>(num, 1.0, 8.0) * denomBeatTable[static_cast<size_t>(myplug::denormalizeValue<float>(denom, 0.0, 13.0))];
     float multiplier = param_lfomultiplier_->convertFrom0to1(param_lfomultiplier_->getValue());
 
-    envVoice.setDelta(1.0 / beatTime * multiplier / getSampleRate());
+    envVoice_.setDelta(1.0 / beatTime * multiplier / getSampleRate());
 }
 
 void MyplugAudioProcessor::recalcAndUpdateXPos(juce::AudioPlayHead& playhead)
@@ -58,7 +58,7 @@ void MyplugAudioProcessor::recalcAndUpdateXPos(juce::AudioPlayHead& playhead)
     float multiplier = (4.0f / denomFloat) / (myplug::denormalizeValue<float>(num, 1.0, 8.0) / posinfo.timeSigNumerator * 4.0f);
     float posInBar = std::fmod(posinfo.ppqPosition, posinfo.timeSigNumerator) / posinfo.timeSigNumerator;
 
-    envVoice.setXPos(std::fmod(posInBar * multiplier + param_lfooffset_->getValue(), 1.0));
+    envVoice_.setXPos(std::fmod(posInBar * multiplier + param_lfooffset_->getValue(), 1.0));
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout MyplugAudioProcessor::createParamLayout()
@@ -102,8 +102,6 @@ MyplugAudioProcessor::MyplugAudioProcessor()
     , windowFunc(fftSize, juce::dsp::WindowingFunction<float>::WindowingMethod::blackmanHarris)
     , fft(fftOrder)
 {
-    DEBUG_windowedfifo.fill(0.0);
-
     // Init Envelopes
     for (int i = 0; i < 10; ++i)
     {
@@ -141,9 +139,9 @@ MyplugAudioProcessor::MyplugAudioProcessor()
     envmng_.registerEnvGenerator(&envgenMB_[0][0]);
     envmng_.registerEnvGenerator(&envgenMB_[0][1]);
     envmng_.registerEnvGenerator(&envgenMB_[0][2]);
-    envmng_.addEnvVoiceController(&envVoice);
+    envmng_.addEnvVoiceController(&envVoice_);
     envmng_.setLoopMode(myplug::envelope::LoopMode::LoopThenRelease);
-    envVoice.notifyLoopPosChanged();
+    envVoice_.notifyLoopPosChanged();
 
     param_banks_ = apvts.getParameter("Banks");
     param_mix_ = apvts.getParameter("Mix");
@@ -389,13 +387,13 @@ void MyplugAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             if (info.isPlaying && !prevPosInfo_.isPlaying)
             {
                 // Retrigger on start
-                envVoice.reset();
+                envVoice_.reset();
                 recalcAndUpdateXPos(*playhead);
             }
             if (abs(info.timeInSamples - prevPosInfo_.timeInSamples) >= buffer.getNumSamples() * 3)
             {
                 // When jumped, retrigger.
-                envVoice.reset();
+                envVoice_.reset();
                 recalcAndUpdateXPos(*playhead);
             }
         }
@@ -408,7 +406,7 @@ void MyplugAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         if (info.isPlaying && !prevPosInfo_.isPlaying)
         {
             // Retrigger on start
-            envVoice.reset();
+            envVoice_.reset();
         }
     }
 
@@ -422,7 +420,7 @@ void MyplugAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             if (param_miditrg_->getValue() != 0)
             {
                 isMidiTriggered = true;
-                envVoice.reset(); // retrigger
+                envVoice_.reset(); // retrigger
                 if (!useLFO)
                 {
                     forceUpdate = true;
@@ -483,14 +481,14 @@ void MyplugAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                     // Voice Update
                     if (useLFO)
                     {
-                        envVoice.update(true);
+                        envVoice_.update(true);
                         isRunning = true;
                     }
                     else
                     {
-                        if (isMidiOneshot && envVoice.getIsXAmongEnvelope())
+                        if (isMidiOneshot && envVoice_.getIsXAmongEnvelope())
                         {
-                            envVoice.update(false); // false ... don't loop
+                            envVoice_.update(false); // false ... don't loop
                             isRunning = true;
                         }
                         else if (isMidiLoop)
@@ -499,15 +497,15 @@ void MyplugAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                             if (isMidiTriggered)
                             {
                                 // loop when note-on
-                                envVoice.update(true);
+                                envVoice_.update(true);
                                 isRunning = true;
                             }
                             else
                             {
                                 // just update to consume residue when note-off
-                                if (isMidiLoop && envVoice.getIsXAmongEnvelope())
+                                if (isMidiLoop && envVoice_.getIsXAmongEnvelope())
                                 {
-                                    envVoice.update(false);
+                                    envVoice_.update(false);
                                     isRunning = true;
                                 }
                             }
@@ -519,40 +517,14 @@ void MyplugAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                     }
                     if (forceUpdate)
                     {
-                        envVoice.update(false);
+                        envVoice_.update(false);
                         isRunning = true;
                     }
 
                     // Hold switch
-                    if (isLFOOnly && !isRunning)
+                    if (!isRunning && !holdEnabled)
                     {
-                        // LFO Only and not running
-                        if (!holdEnabled)
-                        {
-                            // not holded
-                            canProcess = false;
-                        }
-                    }
-                    else
-                    {
-                        if (envVoice.getXPos() >= envgen_->getLastPoint().x)
-                        {
-                            // when XPos exceeds envelope
-                            if (!holdEnabled)
-                            {
-                                // not holded
-                                canProcess = false;
-                            }
-                        }
-                        else if (envVoice.getXPos() <= envgen_->getFirstPoint().x)
-                        {
-                            // when XPos exceeds envelope
-                            if (!holdEnabled)
-                            {
-                                // not holded
-                                canProcess = false;
-                            }
-                        }
+                        canProcess = false;
                     }
                 }
 
@@ -563,7 +535,7 @@ void MyplugAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                 // Apply ducking effect
                 if (canProcess)
                 {
-                    auto xPos = envVoice.getXPos();
+                    auto xPos = envVoice_.getXPos();
 
                     if (param_envTrg_->getValue() == 1.0f)
                     {

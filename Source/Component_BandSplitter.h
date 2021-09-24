@@ -24,12 +24,12 @@ namespace myplug
 		};
 
 		std::array<float, fftSize * 2>& fftData_;
-		std::array<float, fftSize> fftResult;
-		std::deque<std::array<float, fftSize>> recentfftResult;
+		std::array<float, fftSize> fftResult_;
+		std::deque<std::array<float, fftSize>> recentfftResult_;
 		bool& isNextFFTBlockReady_;
 
-		int& sampleRate;
-		int integralSampleLength = 48000 / fftSize * 0.1;
+		int& sampleRate_;
+		int integralSampleLength_ = 48000 / fftSize * 0.1;
 
 		int minFreq_ = 20;
 		int maxFreq_ = 20000;
@@ -53,16 +53,16 @@ namespace myplug
 		BandSplitView(std::array<float, fftSize * 2>& fftData, bool& isNextFFTBlockReady, int& samplerate)
 			: fftData_(fftData)
 			, isNextFFTBlockReady_(isNextFFTBlockReady)
-			, sampleRate(samplerate)
+			, sampleRate_(samplerate)
 		{
 			setFramesPerSecond(30);
-			fftResult.fill(0.0);
+			fftResult_.fill(0.0);
 		}
 
 		void paint(juce::Graphics& g) override;
 		void update() override;
 
-		int getSampleRate() { return sampleRate; }
+		int getSampleRate() { return sampleRate_; }
 		int getSelectedBand() { return currentBand_; }
 		double getLowMidFreq() { return lowmidFreq_; }
 		double getMidHighFreq() { return midhighFreq_; }

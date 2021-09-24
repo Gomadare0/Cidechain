@@ -38,21 +38,21 @@ void myplug::BandSplitView::paint(juce::Graphics& g)
     juce::Path topline;
     juce::PathStrokeType stroke(1.5, juce::PathStrokeType::JointStyle::curved);
     topline.startNewSubPath(-1.0, getHeight());
-    int beginningIndex = (float)fftSize / sampleRate * minFreq_;
-    int endingIndex = (float)fftSize / sampleRate * std::clamp<float>(sampleRate / 2.0, 0, maxFreq_);
+    int beginningIndex = (float)fftSize / sampleRate_ * minFreq_;
+    int endingIndex = (float)fftSize / sampleRate_ * std::clamp<float>(sampleRate_ / 2.0, 0, maxFreq_);
     if (beginningIndex == 0) ++beginningIndex; // ignore lowest band
 
     for (int i = beginningIndex; i < endingIndex; ++i)
     {
-        float freq = (float)sampleRate / fftSize * i;
+        float freq = (float)sampleRate_ / fftSize * i;
         float amplitude = 0.0;
         if (freq == 0) freq = 1;
-        for (int bufIndex = 0; bufIndex < recentfftResult.size(); ++bufIndex)
+        for (int bufIndex = 0; bufIndex < recentfftResult_.size(); ++bufIndex)
         {
-            amplitude += recentfftResult[bufIndex][i];
+            amplitude += recentfftResult_[bufIndex][i];
         }
-        if (recentfftResult.size() != 0)
-            amplitude /= recentfftResult.size();
+        if (recentfftResult_.size() != 0)
+            amplitude /= recentfftResult_.size();
 
         float xPos = calcScreenLogPos(freq);
         float yPos = (amplitude / 60.0 + 1.0) * (-1.0) * getHeight() + getHeight();
@@ -108,9 +108,9 @@ void myplug::BandSplitView::update()
     {
         // set fftResult
         int index = 0;
-        fftResult.fill(0.0);
-        float hzPerBin = (float)sampleRate / fftSize;
-        for (auto& i : fftResult)
+        fftResult_.fill(0.0);
+        float hzPerBin = (float)sampleRate_ / fftSize;
+        for (auto& i : fftResult_)
         {
             // convert to gain & tilting
             float log2coeff = index == 0 ? 0.0f : log2f(hzPerBin * index / 1000.0);
@@ -118,10 +118,10 @@ void myplug::BandSplitView::update()
             ++index;
         }
 
-        recentfftResult.push_back(fftResult);
-        if (recentfftResult.size() > integralSampleLength)
+        recentfftResult_.push_back(fftResult_);
+        if (recentfftResult_.size() > integralSampleLength_)
         {
-            recentfftResult.pop_front();
+            recentfftResult_.pop_front();
         }
         
         isNextFFTBlockReady_ = false;

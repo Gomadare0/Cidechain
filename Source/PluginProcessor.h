@@ -65,11 +65,10 @@ public:
     myplug::envelope::EnvelopeManager envmng_;
     myplug::envelope::CachedEnvelopeGenerator envgen_[10];
     myplug::envelope::CachedEnvelopeGenerator envgenMB_[10][3];
-    myplug::envelope::EnvelopeVoiceController envVoice;
+    myplug::envelope::EnvelopeVoiceController envVoice_;
 
     // Envtrigger Buffer
     std::array<float, fftSize> fifo;
-    std::array<float, fftSize> DEBUG_windowedfifo;
     std::array<float, fftSize * 2> fftData;
     int fifoIndex = 0;
     bool nextFFTBlockReady = false;
