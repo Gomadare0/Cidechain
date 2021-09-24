@@ -9,6 +9,8 @@
       <FILE id="A3APQR" name="bgimg.png" compile="0" resource="1" file="Resource/bgimg.png"/>
     </GROUP>
     <GROUP id="{B7435768-7054-C129-F373-F6A4CEF904D2}" name="Source">
+      <FILE id="NxxgsO" name="ParamAttachment.cpp" compile="1" resource="0"
+            file="Source/ParamAttachment.cpp"/>
       <FILE id="z2awsQ" name="Envelope_Manager.cpp" compile="1" resource="0"
             file="Source/Envelope_Manager.cpp"/>
       <FILE id="ePzlPQ" name="Envelope_PreviewComponent.cpp" compile="1"

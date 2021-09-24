@@ -11,11 +11,8 @@ namespace BinaryData
     extern const char*   bgimg_png;
     const int            bgimg_pngSize = 24228;
 
-    extern const char*   ToDo_txt;
-    const int            ToDo_txtSize = 866;
-
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 2;
+    const int namedResourceListSize = 1;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];
